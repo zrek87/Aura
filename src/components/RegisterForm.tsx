@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // ✅ Import Next.js Router
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext"; // ✅ Import global auth state
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,6 +33,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth(); // ✅ Use global auth state
   const router = useRouter(); // ✅ Initialize Router
 
   const {
@@ -66,10 +68,8 @@ export default function RegisterForm() {
         throw new Error(result.message || "Registration failed");
       }
 
-      alert("✅ Registration successful! Redirecting to dashboard...");
-
-      // ✅ Redirect user to the dashboard
-      router.push("/dashboard");
+      setUser(result.user); // ✅ Update global auth state
+      router.push("/dashboard"); // ✅ Redirect user to the dashboard
     } catch (error) {
       if (error instanceof Error) {
         alert(`❌ Error: ${error.message}`);

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation"; // ✅ Import router for redirection
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext"; // ✅ Import global auth state
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
+  const { setUser } = useAuth(); // ✅ Use global auth state
   const router = useRouter(); // ✅ Use Next.js router for navigation
 
   const {
@@ -55,7 +57,7 @@ export default function LoginForm() {
         throw new Error(result.message || "Login failed");
       }
 
-      alert("✅ Login successful! Redirecting to dashboard...");
+      setUser(result.user); // ✅ Update global auth state
       router.push("/dashboard"); // ✅ Redirect user to dashboard
     } catch (error) {
       if (error instanceof Error) {

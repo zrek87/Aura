@@ -1,51 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext"; // ✅ Import global auth state
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Menu, X, Search } from "lucide-react"; // ✅ Use Lucide Icons
 
 const Navbar: React.FC = () => {
+  const { user, logout } = useAuth(); // ✅ Use global auth state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ full_name: string; email: string } | null>(
-    null
-  );
   const router = useRouter();
-
-  // ✅ Check if user is logged in
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/me`,
-          {
-            method: "GET",
-            credentials: "include",
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        }
-      } catch (error) {
-        setUser(null); // Not logged in
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  // ✅ Handle logout
-  const handleLogout = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    setUser(null);
-    router.push("/auth/login");
-  };
 
   return (
     <>
@@ -99,7 +63,10 @@ const Navbar: React.FC = () => {
                   Dashboard
                 </Link>
                 <button
-                  onClick={handleLogout}
+                  onClick={() => {
+                    logout();
+                    router.push("/auth/login");
+                  }}
                   className="text-sm text-red-500 hover:underline"
                 >
                   Logout
